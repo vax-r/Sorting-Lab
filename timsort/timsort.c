@@ -19,6 +19,40 @@ struct pair {
 
 static size_t stk_size;
 
+static struct list_head *merge_galloping(void *priv,
+                                         list_cmp_func_t cmp,
+                                         struct list_head *a,
+                                         struct list_head *b)
+{
+    struct list_head *head;
+    struct list_head **tail = &head;
+
+    for (; a && b;) {
+        if (cmp(priv, a, b) <= 0) {
+            while (a && cmp(priv, a, b) <= 0) {
+                *tail = a;
+                tail = &a->next;
+                a = a->next;
+            }
+            *tail = b;
+            tail = &b->next;
+            b = b->next;
+        } else {
+            while (b && cmp(priv, a, b) > 0) {
+                *tail = b;
+                tail = &b->next;
+                b = b->next;
+            }
+            *tail = a;
+            tail = &a->next;
+            a = a->next;
+        }
+    }
+
+    *tail = (struct list_head *) ((uintptr_t) a | (uintptr_t) b);
+    return head;
+}
+
 static struct list_head *merge(void *priv,
                                list_cmp_func_t cmp,
                                struct list_head *a,
@@ -144,7 +178,8 @@ static struct list_head *merge_at(void *priv,
 {
     size_t len = run_size(at) + run_size(at->prev);
     struct list_head *prev = at->prev->prev;
-    struct list_head *list = merge(priv, cmp, at->prev, at);
+    // struct list_head *list = merge(priv, cmp, at->prev, at);
+    struct list_head *list = merge_galloping(priv, cmp, at->prev, at);
     list->prev = prev;
     list->next->prev = (struct list_head *) len;
     --stk_size;
