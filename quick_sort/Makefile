@@ -10,8 +10,10 @@ main: $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^ -lm
 
 %.o: %.c
-	$(CC) -o $@ $(CFLAGS) .$@.d $<
+	$(CC) -o $@ $(CFLAGS) -c -MMD -MF .$@.d $<
 
 clean:
 	rm -f $(OBJS)
 	rm -f *.dSYM
+	rm -f main
+	rm -f .*.o.d

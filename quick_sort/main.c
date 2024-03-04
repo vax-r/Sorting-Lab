@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct __node {
     struct __node *left, *right;
@@ -79,6 +80,8 @@ void random_pivot(node_t **head)
 /* Quick Sort */
 void quick_sort(node_t **list)
 {
+    clock_t time = clock();
+
     int n = list_length(list);
     int value;
     int i = 0;
@@ -124,8 +127,9 @@ void quick_sort(node_t **list)
     }
     *list = result;
 
-    printf("size : %d, max_level : %d, deepest level : %d\n", n, max_level,
-           reach_i);
+    time = clock() - time;
+    printf("size : %d, max_level : %d, deepest level : %d, cpu clock : %ld\n",
+           n, max_level, reach_i, time);
 }
 
 /* End of quick sort */
@@ -183,8 +187,8 @@ int main(int argc, char **argv)
         int *test_arr = malloc(sizeof(int) * count);
 
         for (int i = 0; i < count; i++)
-            test_arr[i] = i;
-        shuffle(test_arr, count);
+            test_arr[i] = (count - i);
+        // shuffle(test_arr, count);
         while (count--)
             list = list_construct(list, test_arr[count]);
 
