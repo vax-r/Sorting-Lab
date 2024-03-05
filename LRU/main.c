@@ -9,16 +9,13 @@ bool checkLRU(LRUCache *obj, int key, int value)
     int hash = key % obj->capacity;
     struct hlist_node *ptr = (&obj->hhead[hash])->first;
     LRUNode *cache = list_entry(ptr, LRUNode, node);
-    if (cache->key != key || cache->value != value) {
-        printf("%d, %d\n", cache->key, cache->value);
+    if (cache->key != key || cache->value != value)
         return false;
-    }
 
     cache = list_first_entry(&obj->dhead, LRUNode, link);
-    if (cache->key != key || cache->value != value) {
-        printf("here2\n");
+    if (cache->key != key || cache->value != value)
         return false;
-    }
+
     return true;
 }
 
@@ -37,11 +34,12 @@ int main(void)
             lRUCachePut(cache, key, value);
         } else {
             printf("get(%d), ", key);
-            int result = lRUCacheGet(cache, key);
-            printf("Result: %d\n", result);
+            value = lRUCacheGet(cache, key);
+            printf("Result: %d\n", value);
         }
 
-        assert(checkLRU(cache, key, value));
+        if (value >= 0)
+            assert(checkLRU(cache, key, value));
     }
 
 

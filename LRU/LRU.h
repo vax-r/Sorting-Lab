@@ -49,6 +49,8 @@ int lRUCacheGet(LRUCache *obj, int key)
         LRUNode *cache = list_entry(pos, LRUNode, node);
         if (cache->key == key) {
             list_move(&cache->link, &obj->dhead);
+            hlist_del(&cache->node);
+            hlist_add_head(&cache->node, &obj->hhead[hash]);
             return cache->value;
         }
     }
@@ -64,6 +66,8 @@ void lRUCachePut(LRUCache *obj, int key, int value)
     {
         LRUNode *c = list_entry(pos, LRUNode, node);
         if (c->key == key) {
+            hlist_del(&c->node);
+            hlist_add_head(&c->node, &obj->hhead[hash]);
             list_move(&c->link, &obj->dhead);
             cache = c;
         }
