@@ -259,3 +259,57 @@ void timsort(void *priv, struct list_head *head, list_cmp_func_t cmp)
     }
     merge_final(priv, cmp, head, stk1, stk0);
 }
+
+/* Implementation of linux kernel list_sort */
+
+void list_sort(void *priv, struct list_head *head, list_cmp_func_t cmp)
+{
+    struct list_head *list = head->next, *pending = NULL;
+    size_t count = 0;
+
+    if (list == head->prev) /* Zero or one elements */
+        return;
+
+    /* Convert to a null-terminated singly-linked list. */
+    head->prev->next = NULL;
+
+    do {
+        size_t bits;
+        struct list_head **tail = &pending;
+
+        /* Find the least-significant clear bit in count */
+        for (bits = count; bits & 1; bits >>= 1)
+            tail = &(*tail)->prev;
+        /* Do the indicated merge */
+        if (__glibc_likely(bits)) {
+            struct list_head *a = *tail, *b = a->prev;
+
+            a = merge(priv, cmp, b, a);
+            /* Install the merged result in place of the inputs */
+            a->prev = b->prev;
+            *tail = a;
+        }
+
+        /* Move one element from input list to pending */
+        list->prev = pending;
+        pending = list;
+        list = list->next;
+        pending->next = NULL;
+        count++;
+    } while (list);
+
+    list = pending;
+    pending = pending->prev;
+
+    for (;;) {
+        struct list_head *next = pending->prev;
+
+        if (!next)
+            break;
+        list = merge(priv, cmp, pending, list);
+        pending = next;
+    }
+
+    /* The final merge, rebuilding prev links */
+    merge_final(priv, cmp, head, pending, list);
+}
