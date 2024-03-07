@@ -14,15 +14,24 @@ static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
     h->first = n;
 }
 
-static int find(int num, int size, const struct hlist_head *heads)
+// static int find(int num, int size, const struct hlist_head *heads)
+// {
+//     struct hlist_node *p;
+//     int hash = (num < 0 ? -num : num) % size;
+//     hlist_for_each(p, &heads[hash])
+//     {
+//         struct order_node *on = list_entry(p, struct order_node, node);
+//         if (num == on->val)
+//             return on->idx;
+//     }
+//     return -1;
+// }
+
+static int find(int num, int size, const int *inorder)
 {
-    struct hlist_node *p;
-    int hash = (num < 0 ? -num : num) % size;
-    hlist_for_each(p, &heads[hash])
-    {
-        struct order_node *on = list_entry(p, struct order_node, node);
-        if (num == on->val)
-            return on->idx;
+    for (int i = 0; i < size; i++) {
+        if (inorder[i] == num)
+            return i;
     }
     return -1;
 }
@@ -41,7 +50,8 @@ static struct TreeNode *dfs(int *preorder,
 
     struct TreeNode *tn = malloc(sizeof(*tn));
     tn->val = preorder[pre_low];
-    int idx = find(preorder[pre_low], size, in_heads);
+    // int idx = find(preorder[pre_low], size, in_heads);
+    int idx = find(preorder[pre_low], size, inorder);
     tn->left = dfs(preorder, pre_low + 1, pre_low + (idx - in_low), inorder,
                    in_low, idx - 1, in_heads, size);
     tn->right = dfs(preorder, pre_high - (in_high - idx - 1), pre_high, inorder,

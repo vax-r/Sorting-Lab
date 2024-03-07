@@ -71,7 +71,7 @@ int main(void)
 {
     srand(time(NULL));
 
-    int treeHeight = 5;
+    int treeHeight = 100;
     int num_of_nodes = 0;
 
     struct TreeNode *root = generateRandomBinaryTree(treeHeight, &num_of_nodes);
@@ -84,8 +84,11 @@ int main(void)
     preorderTraversal(root, preorder_seq, &preorderIndex);
     inorderTraversal(root, inorder_seq, &inorderIndex);
 
+    clock_t time = clock();
     struct TreeNode *clone_root =
         buildTree(preorder_seq, num_of_nodes, inorder_seq, num_of_nodes);
+    time = clock() - time;
+    printf("CPU clock ellapsed : %ld\n", time);
 
     int *clone_preorder_seq = malloc((num_of_nodes) * sizeof(int));
     int *clone_inorder_seq = malloc((num_of_nodes) * sizeof(int));
