@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "LRU.h"
 
@@ -21,6 +22,7 @@ bool checkLRU(LRUCache *obj, int key, int value)
 
 int main(void)
 {
+    srand(time(NULL));
     int size = 5;
     LRUCache *cache = lRUCacheCreate(size);
 
